@@ -1,0 +1,159 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Description: 'Valyu AgentCore Gateway - One-click deployment of Valyu search tools on AWS Bedrock AgentCore'
+
+Parameters:
+  ValyuApiKey:
+    Type: String
+    NoEcho: true
+    Description: Your Valyu API key from platform.valyu.ai
+    MinLength: 1
+
+  GatewayName:
+    Type: String
+    Default: valyu-gateway
+    Description: Name for the AgentCore Gateway
+    AllowedPattern: ^[a-z0-9-]+$
+    ConstraintDescription: Lowercase letters, numbers, and hyphens only
+
+  TargetName:
+    Type: String
+    Default: valyu-search
+    Description: Name for the Valyu MCP target
+    AllowedPattern: ^[a-z0-9-]+$
+    ConstraintDescription: Lowercase letters, numbers, and hyphens only
+
+Resources:
+  # IAM Role for AgentCore Gateway
+  GatewayRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub '${GatewayName}-role'
+      AssumeRolePolicyDocument:
+        Version: '2012-10-17'
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service: bedrock.amazonaws.com
+            Action: sts:AssumeRole
+      Policies:
+        - PolicyName: AgentCoreGatewayPolicy
+          PolicyDocument:
+            Version: '2012-10-17'
+            Statement:
+              - Effect: Allow
+                Action:
+                  - bedrock-agentcore:InvokeGateway
+                  - bedrock-agentcore:ListTools
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - logs:CreateLogGroup
+                  - logs:CreateLogStream
+                  - logs:PutLogEvents
+                Resource: !Sub 'arn:aws:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/bedrock-agentcore/*'
+
+  # Cognito User Pool for Authentication
+  UserPool:
+    Type: AWS::Cognito::UserPool
+    Properties:
+      UserPoolName: !Sub '${GatewayName}-users'
+      AdminCreateUserConfig:
+        AllowAdminCreateUserOnly: true
+      Policies:
+        PasswordPolicy:
+          MinimumLength: 12
+          RequireLowercase: true
+          RequireNumbers: true
+          RequireSymbols: true
+          RequireUppercase: true
+
+  # Cognito User Pool Domain
+  UserPoolDomain:
+    Type: AWS::Cognito::UserPoolDomain
+    Properties:
+      Domain: !Sub '${GatewayName}-${AWS::AccountId}'
+      UserPoolId: !Ref UserPool
+
+  # Cognito Resource Server
+  ResourceServer:
+    Type: AWS::Cognito::UserPoolResourceServer
+    Properties:
+      UserPoolId: !Ref UserPool
+      Identifier: !Sub '${GatewayName}'
+      Name: !Sub '${GatewayName}-resource-server'
+      Scopes:
+        - ScopeName: invoke
+          ScopeDescription: Invoke gateway tools
+
+  # Cognito App Client
+  UserPoolClient:
+    Type: AWS::Cognito::UserPoolClient
+    DependsOn: ResourceServer
+    Properties:
+      ClientName: !Sub '${GatewayName}-client'
+      UserPoolId: !Ref UserPool
+      GenerateSecret: true
+      AllowedOAuthFlows:
+        - client_credentials
+      AllowedOAuthScopes:
+        - !Sub '${GatewayName}/invoke'
+      AllowedOAuthFlowsUserPoolClient: true
+      ExplicitAuthFlows:
+        - ALLOW_REFRESH_TOKEN_AUTH
+
+  # Store Valyu API Key in Secrets Manager
+  ValyuApiKeySecret:
+    Type: AWS::SecretsManager::Secret
+    Properties:
+      Name: !Sub '${GatewayName}/valyu-api-key'
+      Description: Valyu API key for AgentCore Gateway
+      SecretString: !Ref ValyuApiKey
+
+  # CloudWatch Log Group
+  GatewayLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub '/aws/bedrock-agentcore/${GatewayName}'
+      RetentionInDays: 30
+
+Outputs:
+  UserPoolId:
+    Description: Cognito User Pool ID
+    Value: !Ref UserPool
+    Export:
+      Name: !Sub '${AWS::StackName}-UserPoolId'
+
+  UserPoolClientId:
+    Description: Cognito User Pool Client ID
+    Value: !Ref UserPoolClient
+    Export:
+      Name: !Sub '${AWS::StackName}-UserPoolClientId'
+
+  UserPoolDomainUrl:
+    Description: Cognito User Pool Domain URL
+    Value: !Sub 'https://${GatewayName}-${AWS::AccountId}.auth.${AWS::Region}.amazoncognito.com'
+    Export:
+      Name: !Sub '${AWS::StackName}-UserPoolDomainUrl'
+
+  TokenEndpoint:
+    Description: OAuth Token Endpoint
+    Value: !Sub 'https://${GatewayName}-${AWS::AccountId}.auth.${AWS::Region}.amazoncognito.com/oauth2/token'
+    Export:
+      Name: !Sub '${AWS::StackName}-TokenEndpoint'
+
+  GatewayRoleArn:
+    Description: IAM Role ARN for the gateway
+    Value: !GetAtt GatewayRole.Arn
+    Export:
+      Name: !Sub '${AWS::StackName}-GatewayRoleArn'
+
+  ValyuMcpEndpoint:
+    Description: Valyu MCP endpoint to use when creating gateway target
+    Value: !Sub 'https://mcp.valyu.ai/mcp?valyuApiKey=${ValyuApiKey}'
+
+  NextSteps:
+    Description: After deploying this stack, create your gateway via AWS Console or CLI
+    Value: |
+      1. Create AgentCore Gateway in AWS Console (Bedrock > AgentCore > Gateways)
+      2. Add target with endpoint from ValyuMcpEndpoint output
+      3. Use the Cognito credentials to authenticate

@@ -1,0 +1,95 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "valyu-agentcore"
+version = "0.1.0"
+description = "Valyu search tools for AWS Bedrock AgentCore - web, finance, academic, biomedical, patent, SEC, and economics search"
+readme = "README.md"
+license = "MIT"
+authors = [
+    { name = "Valyu", email = "contact@valyu.ai" }
+]
+keywords = [
+    "valyu",
+    "agentcore",
+    "bedrock",
+    "aws",
+    "ai-agents",
+    "mcp",
+    "strands",
+    "search",
+    "research",
+    "sec-filings",
+    "financial-data",
+    "academic-papers",
+    "web-search",
+    "rag",
+]
+classifiers = [
+    "Development Status :: 4 - Beta",
+    "Intended Audience :: Developers",
+    "License :: OSI Approved :: MIT License",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Topic :: Scientific/Engineering :: Artificial Intelligence",
+    "Topic :: Internet :: WWW/HTTP :: Indexing/Search",
+]
+requires-python = ">=3.10"
+dependencies = [
+    "httpx>=0.24.0",
+]
+
+[project.optional-dependencies]
+strands = [
+    "strands-agents>=0.1.0",
+    "boto3>=1.28.0",
+]
+langchain = [
+    "langchain-core>=0.1.0",
+]
+agentcore = [
+    "strands-agents>=0.1.0",
+    "boto3>=1.42.0",
+    "bedrock-agentcore>=1.0.0",
+    "bedrock-agentcore-starter-toolkit>=0.2.0",
+    "mcp>=1.0.0",
+]
+all = [
+    "strands-agents>=0.1.0",
+    "langchain-core>=0.1.0",
+    "boto3>=1.28.0",
+    "bedrock-agentcore>=0.1.0",
+    "mcp>=0.1.0",
+]
+dev = [
+    "pytest>=7.0.0",
+    "pytest-asyncio>=0.21.0",
+    "ruff>=0.1.0",
+    "mypy>=1.0.0",
+    "respx>=0.20.0",
+]
+
+[project.urls]
+Homepage = "https://valyu.ai"
+Documentation = "https://docs.valyu.ai"
+Repository = "https://github.com/valyu-network/valyu-agentcore"
+Changelog = "https://github.com/valyu-network/valyu-agentcore/releases"
+"API Key" = "https://platform.valyu.ai"
+
+[tool.hatch.build.targets.wheel]
+packages = ["valyu_agentcore"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "N", "W"]
+
+[tool.mypy]
+python_version = "3.10"
+strict = true

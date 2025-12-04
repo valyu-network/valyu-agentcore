@@ -1,0 +1,14 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AgentCoreInvokeOnly",
+      "Effect": "Allow",
+      "Action": [
+        "bedrock-agentcore:InvokeGateway",
+        "bedrock-agentcore:ListTools"
+      ],
+      "Resource": "arn:aws:bedrock-agentcore:*:*:gateway/*"
+    }
+  ]
+}

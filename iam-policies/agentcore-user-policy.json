@@ -1,0 +1,66 @@
+{
+  "Version": "2012-10-17",
+  "Statement": [
+    {
+      "Sid": "AgentCoreGatewayManagement",
+      "Effect": "Allow",
+      "Action": [
+        "bedrock-agentcore:CreateGateway",
+        "bedrock-agentcore:DeleteGateway",
+        "bedrock-agentcore:GetGateway",
+        "bedrock-agentcore:ListGateways",
+        "bedrock-agentcore:UpdateGateway"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "AgentCoreTargetManagement",
+      "Effect": "Allow",
+      "Action": [
+        "bedrock-agentcore:CreateGatewayTarget",
+        "bedrock-agentcore:DeleteGatewayTarget",
+        "bedrock-agentcore:GetGatewayTarget",
+        "bedrock-agentcore:ListGatewayTargets",
+        "bedrock-agentcore:UpdateGatewayTarget"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "AgentCoreInvoke",
+      "Effect": "Allow",
+      "Action": [
+        "bedrock-agentcore:InvokeGateway",
+        "bedrock-agentcore:ListTools"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "CognitoManagement",
+      "Effect": "Allow",
+      "Action": [
+        "cognito-idp:CreateUserPool",
+        "cognito-idp:DeleteUserPool",
+        "cognito-idp:CreateUserPoolClient",
+        "cognito-idp:DeleteUserPoolClient",
+        "cognito-idp:CreateUserPoolDomain",
+        "cognito-idp:DeleteUserPoolDomain",
+        "cognito-idp:CreateResourceServer",
+        "cognito-idp:DeleteResourceServer",
+        "cognito-idp:DescribeUserPool",
+        "cognito-idp:DescribeUserPoolClient"
+      ],
+      "Resource": "*"
+    },
+    {
+      "Sid": "IAMPassRole",
+      "Effect": "Allow",
+      "Action": "iam:PassRole",
+      "Resource": "*",
+      "Condition": {
+        "StringEquals": {
+          "iam:PassedToService": "bedrock.amazonaws.com"
+        }
+      }
+    }
+  ]
+}

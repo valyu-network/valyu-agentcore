@@ -1,0 +1,62 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+.eggs/
+*.manifest
+*.spec
+
+# Installer logs
+pip-log.txt
+pip-delete-this-directory.txt
+
+# Test, coverage, and pytest
+.coverage
+.cache
+.nox/
+.tox/
+htmlcov/
+.pytest_cache/
+
+# Environments
+.env
+.venv
+env/
+venv/
+ENV/
+env.bak/
+venv.bak/
+
+# VSCode & IDE config
+.vscode/
+.idea/
+*.sublime-project
+*.sublime-workspace
+
+# Jupyter Notebook checkpoints
+.ipynb_checkpoints
+
+# macOS and other system files
+.DS_Store
+Thumbs.db
+
+# Pyre type checker
+.pyre/
+
+# Pypi/Dev
+*.log
+
+# Local config
+*.local.json
+
+# Secrets
+*.env.*
+secrets.json
+
+# Ignore starter and config files
+gateway_config.json
