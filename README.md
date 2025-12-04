@@ -19,27 +19,9 @@ pip install valyu-agentcore[agentcore]
 
 ## Quick Start
 
-### Add to AgentCore Gateway (Enterprise)
+### Local Development
 
-Add Valyu search tools to your existing gateway with one line:
-
-```python
-from valyu_agentcore.gateway import add_valyu_target
-
-add_valyu_target(gateway_id="your-gateway-id")
-```
-
-That's it. All Valyu tools are now available to any agent connected to your gateway.
-
-**Why use AgentCore Gateway?**
-- **Centralized secrets** - API keys stored in AWS, not in application code
-- **Audit logging** - All tool calls logged to CloudTrail
-- **Unified access** - Single MCP gateway for multiple tool providers
-- **Enterprise auth** - OAuth via Cognito or your existing identity provider
-
-### Direct with Strands Agents
-
-For development or simpler deployments, use tools directly:
+Use Valyu tools directly with Strands Agents:
 
 ```python
 from valyu_agentcore import webSearch, financeSearch, secSearch
@@ -54,9 +36,39 @@ agent = Agent(
 response = agent("Summarize Tesla's latest 10-K risk factors")
 ```
 
-Get your API key at [platform.valyu.ai](https://platform.valyu.ai). For enterprise requirements, [contact us](https://valyu.ai/enterprise).
+Get your API key at [platform.valyu.ai](https://platform.valyu.ai).
 
-See [examples/gateway/](examples/gateway/) for full gateway documentation.
+### Production: AgentCore Gateway + Runtime
+
+For production, deploy to AWS with centralized tool access:
+
+```
+User → AgentCore Runtime → AgentCore Gateway → Valyu MCP
+```
+
+```bash
+# 1. Set up Gateway with Valyu tools
+cd examples/gateway
+export VALYU_API_KEY=your-key
+python setup_gateway.py
+
+# 2. Deploy agent to Runtime
+cp valyu_gateway_config.json ../runtime/
+cd ../runtime
+agentcore configure --entrypoint agent.py --non-interactive --name myagent
+agentcore launch
+
+# 3. Test it
+agentcore invoke '{"prompt": "What is NVIDIA stock price?"}'
+```
+
+**Why this architecture?**
+- Centralized secrets (API key in Gateway, not in code)
+- CloudTrail audit logging
+- OAuth authentication
+- Serverless scaling
+
+See [examples/runtime/](examples/runtime/) for complete walkthrough.
 
 ## Available Tools
 
@@ -76,7 +88,7 @@ Real-world agent examples in [examples/use_cases/](examples/use_cases/):
 
 | Example | Description | Tools Used |
 |---------|-------------|------------|
-| [Financial Analyst](examples/use_cases/financial_analyst.py) | Investment research and analysis | SEC, finance, company, web |
+| [Financial Analyst](examples/use_cases/financial_analyst.py) | Investment research and analysis | SEC, finance, web |
 | [Research Assistant](examples/use_cases/research_assistant.py) | Academic literature review | papers, patents, web |
 | [Due Diligence](examples/use_cases/due_diligence.py) | M&A and investment evaluation | All tools |
 
@@ -90,6 +102,8 @@ python examples/use_cases/research_assistant.py "transformer architecture improv
 # Run due diligence
 python examples/use_cases/due_diligence.py "Stripe"
 ```
+
+See [examples/local/](examples/local/) for individual tool examples.
 
 ## Tool Examples
 
@@ -139,7 +153,7 @@ tools = ValyuTools(max_num_results=5)
 
 agent = Agent(
     model=BedrockModel(model_id="us.anthropic.claude-sonnet-4-20250514-v1:0"),
-    tools=tools.all(),  # All 8 tools
+    tools=tools.all(),  # All 7 tools
 )
 
 # Or use tool groups:
@@ -254,25 +268,24 @@ valyu-agentcore/
 │   ├── tools.py             # Strands Agent tools
 │   └── gateway.py           # AgentCore Gateway integration
 ├── examples/
-│   ├── notebooks/           # Jupyter notebooks
-│   │   └── getting_started.ipynb
-│   ├── web_search.py        # Basic tool examples
-│   ├── finance_search.py
-│   ├── sec_search.py
-│   ├── paper_search.py
+│   ├── local/               # Direct Strands usage
+│   │   ├── web_search.py
+│   │   ├── finance_search.py
+│   │   └── ...
+│   ├── runtime/             # AgentCore Runtime deployment
+│   │   ├── agent.py
+│   │   └── README.md
+│   ├── gateway/             # AgentCore Gateway setup
+│   │   ├── add_valyu_target.py
+│   │   └── README.md
 │   ├── use_cases/           # Real-world agent examples
 │   │   ├── financial_analyst.py
 │   │   ├── research_assistant.py
 │   │   └── due_diligence.py
-│   └── gateway/             # Gateway examples
-│       ├── add_valyu_target.py
-│       ├── setup_gateway.py
-│       └── use_gateway.py
+│   └── notebooks/
+│       └── getting_started.ipynb
 ├── cloudformation/          # AWS CloudFormation templates
-│   └── valyu-gateway.yaml
 └── iam-policies/            # IAM policy templates
-    ├── agentcore-user-policy.json
-    └── agentcore-invoke-only-policy.json
 ```
 
 ## Create Custom Tools

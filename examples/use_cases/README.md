@@ -59,7 +59,7 @@ python due_diligence.py "Stripe"
 
 2. Install dependencies:
    ```bash
-   pip install valyu-agentcore
+   pip install valyu-agentcore[strands]
    ```
 
 3. Run any example:

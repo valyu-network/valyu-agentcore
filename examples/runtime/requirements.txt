@@ -1,0 +1,6 @@
+# Core dependencies for AgentCore Runtime deployment
+strands-agents>=0.1.0
+boto3>=1.42.0
+bedrock-agentcore>=1.0.0
+mcp>=1.0.0
+httpx>=0.24.0
