@@ -1,0 +1,11 @@
+{
+  "gateway_id": "valyu-search-gateway-veygfza2ba",
+  "gateway_url": "https://valyu-search-gateway-veygfza2ba.gateway.bedrock-agentcore.us-east-1.amazonaws.com/mcp",
+  "target_id": "YPTOHBJRHA",
+  "region": "us-east-1",
+  "cognito_client_id": "dnldgl3okukg7glhlptfijnng",
+  "cognito_client_secret": "1gs8c9d84k3et9pc63sstvefb4t7so3rqdro65afrienbqo472ju",
+  "cognito_user_pool_id": "us-east-1_mfGlBf137",
+  "cognito_domain": "agentcore-e628a582",
+  "cognito_scope": "valyu-search-gateway/invoke"
+}
